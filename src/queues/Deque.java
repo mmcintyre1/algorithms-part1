@@ -3,12 +3,14 @@ package src.queues;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+
 public class Deque<Item> implements Iterable<Item> {
     private Node first, last;
     private int size;
 
     private class Node {
         Item item;
+        Node previous;
         Node next;
     }
 
@@ -19,7 +21,7 @@ public class Deque<Item> implements Iterable<Item> {
     }
 
     public boolean isEmpty() {
-        return first == null && last == null;
+        return size() == 0;
     }
 
     public int size() {
@@ -33,8 +35,11 @@ public class Deque<Item> implements Iterable<Item> {
         first = new Node();
         first.item = item;
         first.next = oldFirst;
+        first.previous = null;
 
-        if (last == null) last = oldFirst;
+        if (isEmpty()) last = first;
+        else oldFirst.previous = first;
+
         size++;
     }
 
@@ -43,25 +48,45 @@ public class Deque<Item> implements Iterable<Item> {
 
         Node oldLast = last;
         last = new Node();
+
         last.item = item;
-        last.next = oldLast;
+        last.next = null;
+        last.previous = oldLast;
 
         if (isEmpty()) first = last;
         else oldLast.next = last;
+
         size++;
     }
 
     public Item removeFirst() {
+        if (isEmpty()) {
+            throw new NoSuchElementException("The deque is empty.");
+        }
         Item item = first.item;
         first = first.next;
         size--;
+
+        // cleanup if deque is empty
+        if (isEmpty()) last = null;
+        else first.previous = null;
+
         return item;
     }
 
     public Item removeLast() {
+        if (isEmpty()) {
+            throw new NoSuchElementException("The deque is empty.");
+        }
         Item item = last.item;
-        last = last.next;
+        Node oldLast = last;
+        last = oldLast.previous;
         size--;
+
+        // cleanup if deque is empty
+        if (isEmpty()) first = null;
+        else last.next = null;
+
         return item;
     }
 
@@ -82,46 +107,66 @@ public class Deque<Item> implements Iterable<Item> {
         }
 
         public Item next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+
             Item item = current.item;
             current = current.next;
             return item;
         }
     }
 
+    private static class DequeTest {
+        private final Deque<Integer> d;
 
-    public static void main(String[] args) {
-        Deque<Integer> d = new Deque<>();
-        System.out.println(d.isEmpty());
-        d.addFirst(1);
-        System.out.println(d.isEmpty());
-        d.addFirst(2);
-        d.addFirst(3);
-        d.addLast(0);
-        System.out.printf("deque size => %d\n", d.size());
-        d.addLast(1);
-        d.addFirst(0);
-
-        System.out.println("iteration =>");
-        for (int item : d) {
-            System.out.println(item);
+        private DequeTest() {
+            d = new Deque<>();
         }
 
-        int first = d.removeFirst();
-        System.out.printf("first item => %d\n", first);
-        int nextFirst = d.removeFirst();
-        System.out.printf("next first item => %d\n", nextFirst);
+        private void populateFirst(int n) {
+            for (int i = 0; i < n; i++) {
+                d.addFirst(i);
+            }
+        }
 
-        int last = d.removeLast();
-        System.out.printf("last item => %d\n", last);
-        int nextLast = d.removeLast();
-        System.out.printf("next last item => %d\n", nextLast);
+        private void populateLast(int n) {
+            for (int i = 0; i < n; i++) {
+                d.addLast(i);
+            }
+        }
 
-        System.out.printf("deque size => %d\n", d.size());
-        Iterator<Integer> i = d.iterator();
+        private void addFirstRemoveLast() {
+            System.out.println("testing addFirstRemoveLast");
+            System.out.println("Order should be [0, 1, 2, 3, 4]");
+            int elementsCount = 5;
+            populateFirst(elementsCount);
+            for (int i = 0; i < elementsCount; i++) {
+                int item = d.removeLast();
+                System.out.printf("%d\n", item);
+            }
 
-//        System.out.println("iteration =>");
-//        for (int item : d) {
-//            System.out.println(item);
-//        }
+        }
+
+        private void addLastRemoveFirst() {
+            System.out.println("testing addLastRemoveFirst");
+            System.out.println("Order should be [0, 1, 2, 3, 4]");
+            int elementsCount = 5;
+            populateLast(elementsCount);
+            for (int i = 0; i < elementsCount; i++) {
+                int item = d.removeFirst();
+                System.out.printf("%d\n", item);
+            }
+        }
+
+        private void test() {
+            addFirstRemoveLast();
+            addLastRemoveFirst();
+        }
+    }
+
+    public static void main(String[] args) {
+        DequeTest dt = new DequeTest();
+        dt.test();
     }
 }
