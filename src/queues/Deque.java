@@ -1,5 +1,3 @@
-package src.queues;
-
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -90,12 +88,11 @@ public class Deque<Item> implements Iterable<Item> {
         return item;
     }
 
-
     public Iterator<Item> iterator() {
-        return new ArrayIterator();
+        return new DequeIterator();
     }
 
-    private class ArrayIterator implements Iterator<Item> {
+    private class DequeIterator implements Iterator<Item> {
         private Node current = first;
 
         public boolean hasNext() {
