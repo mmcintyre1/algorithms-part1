@@ -1,3 +1,5 @@
+package src.hello;
+
 public class HelloGoodbye {
     public static void main(String[] args) {
         System.out.printf("Hello %s and %s.", args[0], args[1]);
