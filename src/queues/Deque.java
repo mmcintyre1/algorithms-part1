@@ -1,3 +1,5 @@
+package src.queues;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -136,9 +138,8 @@ public class Deque<Item> implements Iterable<Item> {
         private void addFirstRemoveLast() {
             System.out.println("testing addFirstRemoveLast");
             System.out.println("Order should be [0, 1, 2, 3, 4]");
-            int elementsCount = 5;
-            populateFirst(elementsCount);
-            for (int i = 0; i < elementsCount; i++) {
+            populateFirst(5);
+            for (int i = 0; i < 5; i++) {
                 int item = d.removeLast();
                 System.out.printf("%d\n", item);
             }
@@ -148,9 +149,8 @@ public class Deque<Item> implements Iterable<Item> {
         private void addLastRemoveFirst() {
             System.out.println("testing addLastRemoveFirst");
             System.out.println("Order should be [0, 1, 2, 3, 4]");
-            int elementsCount = 5;
-            populateLast(elementsCount);
-            for (int i = 0; i < elementsCount; i++) {
+            populateLast(5);
+            for (int i = 0; i < 5; i++) {
                 int item = d.removeFirst();
                 System.out.printf("%d\n", item);
             }

@@ -1,15 +1,14 @@
-import java.util.Arrays;
+package src.queues;
+
+import edu.princeton.cs.algs4.StdRandom;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.Random;
+
 
 public class RandomizedQueue<Item> implements Iterable<Item> {
     private int size = 0;
-
-    @SuppressWarnings("unchecked")
     private Item[] queue = (Item[]) new Object[1];
-
-    private final Random rand = new Random();
 
     public boolean isEmpty() {
         return size == 0;
@@ -30,10 +29,11 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     }
 
     public Item dequeue() {
-        if (size == 0) throw new UnsupportedOperationException("Queue is empty.");
+        if (size == 0) throw new NoSuchElementException("Queue is empty.");
         if (size <= queue.length / 4) resize(queue.length / 2);
 
-        int index = rand.nextInt(size);
+        int index = StdRandom.uniform(size);
+
         Item item = queue[index];
         queue[index] = queue[--size];
         queue[size] = null;
@@ -43,13 +43,16 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     public Item sample() {
         if (size == 0) throw new NoSuchElementException("Queue is empty.");
-        int index = rand.nextInt(size);
+        int index = StdRandom.uniform(size);
         return queue[index];
     }
 
     private void resize(int capacity) {
-        System.out.println("Resizing from " + queue.length + " to " + capacity);
-        queue = Arrays.copyOfRange(queue, 0, capacity);
+        Item[] copy = (Item[]) new Object[capacity];
+        for (int i = 0; i < size; i++) {
+            copy[i] = queue[i];
+        }
+        queue = copy;
     }
 
     public Iterator<Item> iterator() {
@@ -57,32 +60,30 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     }
 
     private class RandomizedQueueIterator implements Iterator<Item> {
-        private final Item[] shuffledArray;
-        private int current = 0;
+        private final Item[] copy = (Item[]) new Object[queue.length];
+        private int copySize = size;
 
         public RandomizedQueueIterator() {
-            shuffledArray = queue.clone();
-            shuffle(shuffledArray);
+            for (int i = 0; i < queue.length; i++) {
+                copy[i] = queue[i];
+            }
         }
 
         @Override
         public boolean hasNext() {
-            return current < queue.length;
+            return copySize > 0;
         }
 
         @Override
         public Item next() {
             if (!hasNext()) throw new NoSuchElementException();
-            return shuffledArray[current++];
-        }
-
-        public void shuffle(Item[] array) {
-            int n = array.length;
-            for (int i = 0; i < n; i++) {
-                int r = i + (int) (Math.random() * (n - i));
-                Item swap = array[r];
-                array[i] = swap;
-            }
+            int rd = StdRandom.uniform(copySize);
+            Item item = copy[rd];
+            if (rd != copySize - 1)
+                copy[rd] = copy[copySize - 1];
+            copy[copySize - 1] = null;
+            copySize--;
+            return item;
         }
     }
 
@@ -94,7 +95,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
             System.out.printf("Added element: %d\n", i);
             System.out.printf("elements in queue: %d\n", rq.size());
         }
-
+        System.out.println(rq.sample());
         System.out.print("\nIterator test:\n[");
         for (Integer elem : rq)
             System.out.print(elem + " ");
@@ -104,5 +105,6 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
             System.out.printf("Removed element: %d\n", rq.dequeue());
             System.out.printf("Current number of elements in queue: %d\n", rq.size());
         }
+        System.out.println(rq.isEmpty());
     }
 }
